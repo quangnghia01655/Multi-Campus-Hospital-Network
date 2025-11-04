@@ -1,67 +1,95 @@
-Mục tiêu thiết kế
-Mô hình phân tầng (Hierarchical Model): Áp dụng mô hình 3 lớp (Core, Distribution, Access) để dễ dàng quản lý, mở rộng và khắc phục sự cố.
+1. Kiến trúc Mạng
+Hệ thống được thiết kế phân tầng và phân chia theo chức năng tại từng khu vực.
 
-Phân đoạn mạng (Network Segmentation): Sử dụng VLANs để chia mạng cho từng khoa/phòng ban riêng biệt (ví dụ: Khoa Cấp cứu, Khoa Xét nghiệm, Khu Văn phòng, Server Farm...). Điều này giúp tăng cường bảo mật và giảm thiểu broadcast.
+📍 Khu A (Trụ sở chính) 
 
-Kết nối liên cơ sở (Site-to-Site Connectivity): Đảm bảo hai cơ sở tại 2 tỉnh có thể giao tiếp an toàn và tin cậy thông qua Internet.
+Khu A được chia thành 3 tòa nhà chính với vai trò rõ rệt:
 
-Bảo mật (Security): Kiểm soát truy cập giữa các VLAN và bảo vệ tài nguyên mạng.
+Tòa I (Vận hành & Chuyên môn): Gồm 5 tầng, phục vụ các khoa chuyên môn và quản lý.
 
-Dịch vụ mạng (Network Services): Cung cấp các dịch vụ thiết yếu cho hoạt động của bệnh viện.
+Tầng 1: Quản lý 
 
-Công nghệ & Giao thức chính
-Dự án sử dụng các công nghệ và giao thức cốt lõi sau:
+Tầng 2: Khu phòng bệnh 
 
-Định tuyến (Routing):
+Tầng 3: Khoa cấp cứu 
 
-OSPF: Sử dụng làm giao thức định tuyến động nội vùng (IGP) trong mỗi cơ sở, cho phép mạng tự động học các tuyến đường và nhanh chóng hội tụ khi có thay đổi.
+Tầng 4: Khoa ngoại 
 
-Chuyển mạch (Switching):
+Tầng 5: Khoa nội 
 
-VLAN (Virtual LANs): Phân chia mạng logic theo chức năng (Khoa Khám bệnh, Khoa Nội trú, Phòng Lab, Văn phòng...).
+Tòa II (Trung tâm máy chủ): Là nơi đặt các máy chủ cung cấp dịch vụ cho toàn hệ thống.
 
-Inter-VLAN Routing: Cấu hình trên Switch Layer 3 (SVI) để cho phép giao tiếp có kiểm soát giữa các VLAN.
+Tòa III (Bảo mật & Lưu trữ): Tập trung các thiết bị mạng lõi như Router, Firewall và máy chủ lưu trữ.
 
-Bảo mật (Security):
+📍 Khu B (Chi nhánh) 
+Khu B là cơ sở chi nhánh, kết nối về Khu A thông qua VPN Site-to-Site qua Internet. Tòa nhà gồm 4 tầng:
+Tầng 1: Quản lý 
 
-ASA Firewall: Triển khai 2 tường lửa Cisco ASA tại mỗi cơ sở (ASA1 và ASA2).
+Tầng 2: Khu phòng bệnh 
 
-IPsec VPN Site-to-Site: Cấu hình đường hầm VPN an toàn giữa 2 ASA để mã hóa toàn bộ dữ liệu trao đổi giữa hai cơ sở qua Internet.
+Tầng 3: Khoa mắt 
 
-ACL (Access Control Lists): Áp dụng trên router và firewall để lọc gói tin, chỉ cho phép các truy cập hợp lệ, chặn các truy cập không mong muốn giữa các VLAN.
+Tầng 4: Khoa tai mũi họng 
 
-Dịch vụ (Services):
+2. Công nghệ & Giao thức chính
+Dự án triển khai một loạt các công nghệ và giao thức tiêu chuẩn để đảm bảo hiệu suất và bảo mật.
 
-NAT (Network Address Translation): Cho phép các máy trạm trong mạng LAN truy cập Internet bằng cách sử dụng một địa chỉ IP public.
+🌐 Phân đoạn mạng (VLAN)
+Hệ thống sử dụng VLAN để phân chia mạng logic, tăng cường bảo mật và quản lý. Các VLAN chính bao gồm:
 
-DHCP (Dynamic Host Configuration Protocol): Cấp phát địa chỉ IP động cho các máy trạm (PC, Laptop, Wifi-devices) trong từng VLAN.
+VLAN 10: MANAGEMENT
 
-Không dây (Wireless):
+VLAN 20: LAN (Trụ sở A)
 
-WLAN Controller (WLC): Triển khai WLC để quản lý tập trung các Access Point (AP), cung cấp mạng Wi-Fi cho bệnh nhân và nhân viên với các SSID riêng biệt.
+VLAN 50: WLAN (Trụ sở A)
 
-Các dịch vụ triển khai (Server Farm)
-Một khu vực Server Farm được thiết lập để cung cấp các dịch vụ trung tâm cho toàn bộ hệ thống bệnh viện:
+VLAN 60: BLAN (LAN Chi nhánh B)
 
-DNS Server: Phân giải tên miền nội bộ (ví dụ: benhvien.local) và tên miền public.
+VLAN 90: BWLAN (WLAN Chi nhánh B)
 
-Web Server (HTTP): Cổng thông tin nội bộ, tra cứu lịch làm việc, website bệnh viện.
+VLAN 199: Blackhole (Không sử dụng)
 
-Email Server: Hệ thống thư điện tử nội bộ.
+🗺️ Định tuyến (Routing)
+OSPF: Được sử dụng làm giao thức định tuyến động nội vùng (IGP) chính. OSPF được cấu hình trên các Router (HQ-ISP, BRANCH) , ASA Firewall (HQ-FWL, B-FWL) và Switch Layer 3 (HQ-SW1, HQ-SW2, B-SW1, B-SW2).
+Static Routing: Cấu hình default route trên ASA Firewall (HQ-FWL, B-FWL) để trỏ ra router ISP, cho phép truy cập Internet.
+🔒 Bảo mật (Security)
+ASA Firewall: Triển khai 2 thiết bị Cisco ASA (HQ-FWL, B-FWL) làm tường lửa biên. Các cổng được phân vùng security-level: OUTSIDE (0), DMZ (70), INSIDE1 (100), INSIDE2 (100).
+VPN Site-to-Site: Cấu hình IPsec VPN (IKEv1, 3DES, SHA) giữa HQ-FWL và B-FWL để mã hóa lưu lượng truy cập giữa hai cơ sở.
+ACL (Access Control Lists):
+VPN-ACL: Định nghĩa traffic được phép đi qua đường hầm VPN (ví dụ: ip 192.168.10.0 255.255.255.0 172.17.0.0 255.255.0.0).
+RES-ACCESS: Cho phép các dịch vụ thiết yếu (ICMP, DNS, WWW, SMTP...) từ bên ngoài vào vùng DMZ và OUTSIDE.
+NAT (Network Address Translation): Cấu hình NAT động (dynamic interface) trên ASA, cho phép các mạng LAN nội bộ (INSIDE1, INSIDE2) truy cập Internet qua địa chỉ IP của cổng OUTSIDE.
+Bảo mật SSH: Cấu hình SSH version 2, username/password, và sử dụng access-class để giới hạn chỉ IP từ dải 192.168.10.0 (VLAN Management) mới được phép SSH vào thiết bị.
 
-FTP Server: Lưu trữ và chia sẻ file (ví dụ: file ảnh X-quang, tài liệu lớn).
+🚀 Tính sẵn sàng cao (High Availability)
 
-Kết quả kiểm thử (Testing Results)
-Kiểm thử kết nối nội bộ: Các máy trạm trong cùng một VLAN và khác VLAN (được cho phép bởi ACL) có thể giao tiếp thành công.
+HSRP (Hot Standby Router Protocol): Cấu hình HSRP cho các cặp Switch Layer 3 (HQ-SW1/HQ-SW2 và B-SW1/B-SW2) để cung cấp default gateway dự phòng cho tất cả các VLAN.
 
-Kiểm thử kết nối liên cơ sở: Máy trạm tại Cơ sở 1 (ví dụ: 10.10.x.x) có thể ping và truy cập thành công các máy chủ tại Cơ sở 2 (ví dụ: 192.168.x.x) thông qua đường hầm VPN và ngược lại.
+EtherChannel (LACP): Gộp 3 cổng (GigabitEthernet1/0/21-23) thành Port-channel 1 (LACP active-passive) giữa HQ-SW1 và HQ-SW2, và Port-channel 2 giữa B-SW1 và B-SW2 để tăng băng thông và dự phòng.
 
-Kiểm thử dịch vụ:
+📡 Mạng không dây (Wireless)
 
-Các máy trạm nhận IP từ DHCP thành công.
+WLC (Wireless LAN Controller): Triển khai một WLC (IP: 10.10.0.15) để quản lý tập trung các Access Point (AP).
 
-Truy cập Internet thành công (thông qua NAT).
+SSIDs: Cung cấp nhiều SSID cho các đối tượng người dùng khác nhau:
 
-Phân giải DNS và truy cập các dịch vụ Web, Email, FTP nội bộ thành công.
+NHANVIEN WIFI
 
-Độ ổn định: Hệ thống mạng phản hồi nhanh và ổn định, sẵn sàng cho việc triển khai ứng dụng y tế.
+BENHVIEN WIFI
+
+PHONGBENH_A WIFI
+
+PHONGBENH_B WIFI 
+
+3. Dịch vụ Mạng (Server Farm)
+Khu A (Tòa II) tập trung các máy chủ cung cấp dịch vụ cho toàn hệ thống.
+
+DHCP: 2 máy chủ DHCP (DHCP-1: 10.20.20.5, DHCP-2: 10.20.20.6) cấp phát IP cho các pool HQLAN, HGMGT, HQWLAN, BRLAN, BRWLAN. Các Switch L3 được cấu hình ip helper-address để chuyển tiếp yêu cầu DHCP.
+
+DNS: Máy chủ DNS (10.20.20.7) phân giải tên miền nội bộ health.vn (10.20.20.8) và google.com (8.8.8.8).
+
+Web Server (HTTP): Cung cấp cổng thông tin http://health.vn.
+
+Email Server: Cung cấp dịch vụ email nội bộ với tên miền gmail.com.
+
+FTP Server: Dịch vụ lưu trữ và trao đổi file (10.20.20.10).
